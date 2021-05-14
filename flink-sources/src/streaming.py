@@ -24,53 +24,9 @@ def main():
 
     print("register kafka source")
     register_kafka_source(st_env)
+    print("register transaction sinks")
     register_transactions_sink_into_csv(st_env)
 
-    #Filter
-    # st_env.from_path("source") \
-    #     .window(Slide.over(lit(2).minutes).every(lit(1).minutes).on("rowtime").alias("w")) \
-    #     .group_by("customer_id, w") \
-    #     .select("""customer_id as customer_id,
-    #              count(*) as total_counts,
-    #              w.start as start_time,
-    #              w.end as end_time
-    #              """) \
-    #     .insert_into("sink_into_csv")
-
-        # .window(Tumble.over("10.hours").on("rowtime").alias("w")) \
-
-        # .select("""customer as customer, 
-        #            count(transaction_type) as count_transactions,
-        #            sum(online_payment_amount) as total_online_payment_amount, 
-        #            sum(in_store_payment_amount) as total_in_store_payment_amount,
-        #            last(lat) as lat,
-        #            last(lon) as lon,
-        #            w.end as last_transaction_time
-        #            """) \
-        # .group_by("customer, w") \
-
-    # st_env.from_path("source") \
-    #     .window(Slide.over(lit(2).minutes).every(lit(1).minutes).on("rowtime").alias("w")) \
-    #     .print()
-
-
-#    st_env.from_path("source_tbl") \
-#        .window(Slide.over(lit(1).minute).every(lit(5).seconds).on("ts").alias("w")) \
-#        .group_by(col("w")) \
-#        .select("""count(message) as total,
-#                    w.end as end_time
-#                   """) \
-#        .insert_into("total_sink")
-
-#    st_env.from_path("source_tbl") \
-#        .where("message = 'dolorem'") \
-#        .window(Slide.over(lit(1).minute).every(lit(5).seconds).on("ts").alias("w")) \
-#        .group_by(col("w")) \
-#        .select("""
-#                    count(message) as total,
-#                    w.end as end_time
-#                   """) \
-#        .insert_into("grep_sink")
 
     st_env.from_path("source_tbl") \
         .window(Slide.over(lit(1).minute).every(lit(5).seconds).on("ts").alias("w")) \
@@ -86,8 +42,6 @@ def main():
     st_env.execute("app")
 
 def register_kafka_source(st_env):
-
-    # table_env = TableEnvironment.create(settings)
 
     sink_ddl = f"""
         CREATE TABLE source_tbl (
@@ -106,49 +60,10 @@ def register_kafka_source(st_env):
     st_env.execute_sql(sink_ddl)
 
     return
-    # st_env.connect(Kafka()
-    #                .version("universal")
-    #                .topic("quickstart-events")
-    #                .start_from_latest()
-    #                .property("bootstrap.servers", "40.89.150.165:9092")) \
-    #     .with_format(Json()
-    #     .fail_on_missing_field(True)
-    #     .schema(DataTypes.ROW([
-    #     DataTypes.FIELD("customer", DataTypes.STRING()),
-    #     DataTypes.FIELD("transaction_type", DataTypes.STRING()),
-    #     DataTypes.FIELD("online_payment_amount", DataTypes.DOUBLE()),
-    #     DataTypes.FIELD("in_store_payment_amount", DataTypes.DOUBLE()),
-    #     DataTypes.FIELD("lat", DataTypes.DOUBLE()),
-    #     DataTypes.FIELD("lon", DataTypes.DOUBLE()),
-    #     DataTypes.FIELD("transaction_datetime", DataTypes.TIMESTAMP(3))]))) \
-    #     .with_schema(Schema()
-    #     .field("customer", DataTypes.STRING())
-    #     .field("transaction_type", DataTypes.STRING())
-    #     .field("online_payment_amount", DataTypes.DOUBLE())
-    #     .field("in_store_payment_amount", DataTypes.DOUBLE())
-    #     .field("lat", DataTypes.DOUBLE())
-    #     .field("lon", DataTypes.DOUBLE())
-    #     .field("rowtime", DataTypes.TIMESTAMP(3))
-    #     .rowtime(
-    #     Rowtime()
-    #         .timestamps_from_field("rowtime")
-    #         .watermarks_periodic_bounded(60000))) \
-    #     .in_append_mode() \
-    #     .create_temporary_table("source")
-
-
-    # Add Source
-            # .property("security.protocol", "SASL_PLAINTEXT") \
-            # .property("sasl.mechanism", "PLAIN") \
-            # .property("sasl.jaas.config", "<user,password>") \
 
 
 
 def register_transactions_sink_into_csv(st_env):
-    # result_file = "/app/src/output_file.csv"
-    # if os.path.exists(result_file):
-    #     os.remove(result_file)
-
 
     sink_ddl = f"""
         CREATE TABLE total_sink (
@@ -197,39 +112,6 @@ def register_transactions_sink_into_csv(st_env):
     st_env.execute_sql(sink_ddl)
 
 
-    # st_env.register_table_sink("sink_into_csv",
-    #                            CsvTableSink(["total",
-    #                                          ],
-    #                                         [DataTypes.BIGINT()],
-    #                         #    CsvTableSink(["customer",
-    #                         #                  "count_transactions",
-    #                         #                  "total_online_payment_amount",
-    #                         #                  "total_in_store_payment_amount",
-    #                         #                  "lat",
-    #                         #                  "lon",
-    #                         #                  "last_transaction_time"],
-    #                         #                 [DataTypes.STRING(),
-    #                         #                  DataTypes.DOUBLE(),
-    #                         #                  DataTypes.DOUBLE(),
-    #                         #                  DataTypes.DOUBLE(),
-    #                         #                  DataTypes.DOUBLE(),
-    #                         #                  DataTypes.DOUBLE(),
-    #                         #                  DataTypes.TIMESTAMP(3)],
-    #                                         result_file))
-
-    # result_file = "/app/src/output_file.csv"
-    # if os.path.exists(result_file):
-    #     os.remove(result_file)
-    # env.register_table_sink("sink_into_csv",
-    #                         CsvTableSink(["customer_id",
-    #                                       "total_count",
-    #                                       "start_time",
-    #                                       "end_time"],
-    #                                      [DataTypes.STRING(),
-    #                                       DataTypes.DOUBLE(),
-    #                                       DataTypes.TIMESTAMP(3),
-    #                                       DataTypes.TIMESTAMP(3)],
-    #                                      result_file))
 
 if __name__ == "__main__":
     main()

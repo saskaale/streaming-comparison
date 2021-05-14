@@ -1,4 +1,4 @@
 #!/bin/bash
 # Triggers a Flink job via Flink streaming python API
 
-/opt/flink/bin/pyflink-stream.sh /app/src/hello_world.py
+/opt/flink/bin/flink --python /app/src/streaming.py
