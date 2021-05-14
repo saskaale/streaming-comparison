@@ -1,5 +1,12 @@
 # streaming-comparison
 
+The streaming comparision between Databricks ( Spark Streaming ), Apache Flink and Quix streaming.
+
+## Description
+
+Codebase to the attached article:
+
+
 ## Howto build generators
 
 Have the librdkafka (with the c++ bindings) installed on your system.
