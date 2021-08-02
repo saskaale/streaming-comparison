@@ -29,6 +29,24 @@ def main():
 
 
     st_env.from_path("source_tbl") \
+       .window(Slide.over(lit(1).minute).every(lit(5).seconds).on("ts").alias("w")) \
+       .group_by(col("w")) \
+       .select("""count(message) as total,
+                   w.end as end_time
+                  """) \
+       .insert_into("total_sink")
+
+    st_env.from_path("source_tbl") \
+       .where("message = 'dolorem'") \
+       .window(Slide.over(lit(1).minute).every(lit(5).seconds).on("ts").alias("w")) \
+       .group_by(col("w")) \
+       .select("""
+                   count(message) as total,
+                   w.end as end_time
+                  """) \
+       .insert_into("grep_sink")
+
+    st_env.from_path("source_tbl") \
         .window(Slide.over(lit(1).minute).every(lit(5).seconds).on("ts").alias("w")) \
         .group_by(col("w"), col("message")) \
         .select("""
